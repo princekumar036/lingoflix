@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+<div class="">
+  <span class="text-lg font-bold">Movies</span>
+  <span class="bg-black bg-slate-800 border border-slate-600 text-xs font-bold px-3 py-1 rounded float-right">
+    Filters <span class="mdi mdi-chevron-down ml-2"></span>
+  </span>
+</div>
+
+<section id="section-movie" class="grid grid-flow-row gap-5 grid-cols-2 md:grid-cols-4 lg:grid-cols-5 my-10">
+  <!-- {% for movie in movies %}
+  <a href="/movie-details?id={{ movie['id'] }}" class="hover:scale-105 ease-in-out duration-300">
+    <img class="rounded-t h-72 w-full object-cover" src="https://image.tmdb.org/t/p/w500/{{ movie['poster_path'] }}" alt="{{ movie['title'] }}">
+    <p>{{ movie['title'] }} <span class="text-sm opacity-80">({{ movie['release_date'].split('-')[0] }})</span></p>
+  </a>
+  {% endfor %} -->
+</section>
+
+<div id="more-movie" class="inline-block w-full text-center py-2 bg-green-800 rounded hover:cursor-pointer">Load more</div>
+
+{% endblock %}

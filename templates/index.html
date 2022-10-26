@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lingoflix</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* BACKGROUND IMAGE OF HOMEPAGE */
+        body::after {
+            content: "";
+            position: fixed;
+            top: -5px;
+            left: -5px;
+            width: calc(100% + 10px);
+            height: calc(100% + 10px);
+            z-index: -1;
+
+            /* background-color: black; */
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.75)), url('/static/images/bg-portrait.png') no-repeat center center/cover;
+            filter: blur(3px);
+        }
+        @media screen and (min-width: 768px) {
+            body::after {
+                background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.75)), url('/static/images/bg-landscape.png') no-repeat center center/cover;
+            }
+        }
+    </style>
+</head>
+
+<body class="w-screen h-screen text-white text-center grid place-content-center">
+    <div>
+        <div>
+            <h1 class="logo text-6xl tracking-widest">LINGOFLIX</h1>
+            <p>Discover international films and shows.</p>
+            <p>Learn a language.</p>
+        </div>
+        <div>
+            <form class="mt-5 flex flex-col w-60 mx-auto" action="/browse" method="post">
+                <label for="watch_region" class="mt-5">
+                    <span class="mdi mdi-web"></span>
+                    Watch Region
+                    <span class="mdi mdi-information-outline text-sm"
+                        title="We will only show the titles available in your region. Select global to see all results."></span>
+                </label>
+                <select name="watch_region" class="bg-black border rounded">
+                    <option value="in">Global</option>
+                    {% for region in regions %}
+                    <option value="{{ region['iso_3166_1'] }}" {{ 'selected' if ip_region==region['iso_3166_1'] }}>
+                        {{ region['english_name'] }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label for="target_language" class="mt-5">
+                    <span class="mdi mdi-translate"></span>
+                    Target Language
+                    <span class="mdi mdi-information-outline text-sm"
+                        title="Select the language you want to learn. We will show the title available in selected language."></span>
+                </label>
+                <select name="target_language" class="bg-black border rounded">
+                    {% for language in languages %}
+                    <option value="{{ language['iso_639_1'] }}">{{ language['english_name'] }}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Let's watch and learn"
+                    class="mt-5 bg-indigo-800 border rounded border-indigo-500 cursor-pointer">
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
