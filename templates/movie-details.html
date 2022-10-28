@@ -18,7 +18,7 @@
 <section
     class="flex flex-col md:flex-row justify-center md:justify-start text-center md:text-left items-center gap-x-10">
     <div>
-        <img class="w-60 md:w-full" src="https://image.tmdb.org/t/p/w500/{{ movie['poster_path'] }}"
+        <img class="w-60 md:w-full" src="https://image.tmdb.org/t/p/w342{{ movie['poster_path'] }}"
             alt="{{ movie['title'] }}">
     </div>
     <div>
@@ -27,13 +27,11 @@
             <span class="font-bold text-lg opacity-80">({{ movie['release_date'].split('-')[0] }})
         </h1>
         <div class="mt-3 mb-4">
-            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{
-                movie['original_language'].upper() }}</span>
+            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ movie['original_language'].upper()|replace("XX", "Silent") }}</span>
             {% for genre in movie['genres'] %}
             <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ genre['name'] }}</span>
             {% endfor %}
-            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ movie['runtime'] }}
-                min</span>
+            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ movie['runtime'] }} min</span>
         </div>
         <div>
             <!-- <a href="https://www.imdb.com/title/{{ movie['imdb_id'] }}">
@@ -52,10 +50,10 @@
         {% if movie['watch/providers']['results'][session['watch_region']] %}
         <div class="my-10">
             <p class="font-bold text-xl mb-2">Stream Now:</p>
-            <a class="flex gap-3 justify-center items-center bg-green-500 py-1 rounded" href="{{ stream_link }}"
+            <a class="flex gap-3 justify-center items-center bg-green-500 py-1 rounded" href="{{ stream['link'] }}"
                 target="_blank">
-                <p class="font-bold text-xs">{{ stream_service|replace("on", "on<br>")|safe }}</p>
-                <img class="w-10 rounded" src="https://www.themoviedb.org{{ stream_imgsrc }}" alt="">
+                <p class="font-bold text-xs">{{ stream['provider']|replace("on", "on<br>")|safe }}</p>
+                <img class="w-10 rounded" src="https://www.themoviedb.org{{ stream['img'] }}" alt="">
             </a>
         </div>
         {% endif %}

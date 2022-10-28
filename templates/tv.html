@@ -9,15 +9,18 @@
   </span>
 </div>
 
-<section id="section-tv" class="grid grid-flow-row gap-5 grid-cols-2 md:grid-cols-4 lg:grid-cols-5 my-10">
+<section id="tv-section" class="grid grid-flow-row gap-5 grid-cols-2 md:grid-cols-4 lg:grid-cols-5 my-10">
   {% for tv in tvs %}
-  <!-- <a href="/tv-details?id={{ tv['id'] }}" class="hover:scale-105 ease-in-out duration-300">
-      <img class="rounded-t h-72 w-full object-cover" src="https://image.tmdb.org/t/p/w500/{{ tv['poster_path'] }}" alt="">
-      <p>{{ tv['name'] }} <span class="text-sm opacity-80">({{ tv['first_air_date'].split('-')[0] }})</span></p>
-  </a> -->
+  <a href="/tv-details?id={{ tv['id'] }}" class="hover:scale-105 ease-in-out duration-300">
+    <img class="rounded-t h-72 w-full object-cover" src="https://image.tmdb.org/t/p/w185{{ tv['poster_path'] }}" alt="{{ tv['name'] }}">
+    <p>{{ tv['name'] }} <span class="text-sm opacity-80">({{ tv['first_air_date'].split('-')[0] }})</span></p>
+  </a>
   {% endfor %}
 </section>
 
-<div id="more-tv" class="inline-block w-full text-center py-2 bg-green-800 rounded hover:cursor-pointer">Load more</div>
+<form method="post" id="tv-form" class="my-3">
+  <input type="hidden" name="tv-pageNo" id="tv-pageNo" value="1">
+  <input type="submit" value="Load more" class="inline-block w-full text-center py-2 bg-green-800 rounded cursor-pointer">
+</form>
 
 {% endblock %}

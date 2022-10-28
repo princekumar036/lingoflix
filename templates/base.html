@@ -32,7 +32,7 @@
         {% endblock %}
     </main>
 
-    <footer class="bg-slate-900 text-sm text-center pt-2 pb-3 mt-10">
+    <footer class="bg-slate-900 text-sm text-center pt-2 pb-3 mt-20">
         <p>Data Provided by</p>
         <a href="https://www.themoviedb.org/">
             <img class="w-20 mx-auto" src="/static/images/tmdb_blue_short.svg" alt="TMDB">
@@ -49,7 +49,7 @@
     {% endif %}
 
     <script>
-        let session = {{session|tojson}};
+        let total_pages = {{ total_pages }}
     </script>
     <script src="/static/script.js"></script>
     <script src="/static/movie.js"></script>

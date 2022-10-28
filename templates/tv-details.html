@@ -5,7 +5,7 @@
     <img class="absolute -z-50 w-full h-full object-cover"
         src="https://image.tmdb.org/t/p/original/{{ tv['backdrop_path'] }}" alt="">
     <div class="absolute w-full h-full grid place-content-center text-center">
-        <h1 class="font-bold text-5xl">{{ tv['name'] }}</h1>
+        <h1 class="font-bold text-5xl tracking-widest">{{ tv['name'].upper() }}</h1>
         {% if tv['tagline'] != "" %}
         <p class="font-bold text-2xl italic mt-3">"{{ tv['tagline'] }}"</p>
         {% endif %}
@@ -18,7 +18,7 @@
 <section
     class="flex flex-col md:flex-row justify-center md:justify-start text-center md:text-left items-center gap-x-10">
     <div>
-        <img class="w-60 md:w-full" src="https://image.tmdb.org/t/p/w500/{{ tv['poster_path'] }}"
+        <img class="w-60 md:w-full" src="https://image.tmdb.org/t/p/w342{{ tv['poster_path'] }}"
             alt="{{ tv['name'] }}">
     </div>
     <div>
@@ -27,13 +27,11 @@
             <span class="font-bold text-lg opacity-80">({{ tv['first_air_date'].split('-')[0] }})
         </h1>
         <div class="mt-3 mb-4">
-            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{
-                tv['original_language'].upper() }}</span>
+            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ tv['original_language'].upper()|replace("XX", "Silent") }}</span>
             {% for genre in tv['genres'] %}
             <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ genre['name'] }}</span>
             {% endfor %}
-            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ tv['runtime'] }}
-                min</span>
+            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ tv['runtime'] }} min</span>
         </div>
         <div>
             <!-- <a href="https://www.imdb.com/title/{{ tv['imdb_id'] }}">
@@ -52,10 +50,10 @@
         {% if tv['watch/providers']['results'][session['watch_region']] %}
         <div class="my-10">
             <p class="font-bold text-xl mb-2">Stream Now:</p>
-            <a class="flex gap-3 justify-center items-center bg-green-500 py-1 rounded" href="{{ stream_link }}"
+            <a class="flex gap-3 justify-center items-center bg-green-500 py-1 rounded" href="{{ stream['link'] }}"
                 target="_blank">
-                <p class="font-bold text-xs">{{ stream_service|replace("on", "on<br>")|safe }}</p>
-                <img class="w-10 rounded" src="https://www.themoviedb.org{{ stream_imgsrc }}" alt="">
+                <p class="font-bold text-xs">{{ stream['provider']|replace("on", "on<br>")|safe }}</p>
+                <img class="w-10 rounded" src="https://www.themoviedb.org{{ stream['img'] }}" alt="">
             </a>
         </div>
         {% endif %}

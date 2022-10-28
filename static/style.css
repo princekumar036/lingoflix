@@ -1,13 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=BenchNine:wght@300;400;700&family=Poppins:wght@300;400;700&display=swap');
 
-:root {
-    --primary-color: #3730a3;
-    --primary-color-transparent: rgba(55, 48, 163, 0.5);
-    --secondary-color: #9f1239;
-    --secondary-color-tranparent: rgba(159, 18, 57, 0.5);
-}
-
 body {
     font-family: 'Poppins', sans-serif;
 }

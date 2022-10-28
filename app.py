@@ -2,26 +2,46 @@ from flask import Flask, render_template, request, flash, redirect, session
 import requests
 import json
 from bs4 import BeautifulSoup
+import os
 
+# APP CONFIGS
 app = Flask(__name__, static_url_path='/static')
-app.config["TEMPLATES_AUTO_RELOAD"] = True
-app.secret_key = b'_5#y2L"F4Q9z\n\xec]/'
+app.config['SECRET_KEY'] = os.urandom(12)
 
-TMBD_APIKEY = 'daa7c37e8875b873c494c4070f234516'
-def tmdb_discover(type):
-    return (f'https://api.themoviedb.org/3/discover/{type}?'
-        f'api_key={TMBD_APIKEY}'
-        f'&region={session["watch_region"]}'
-        f'&with_original_language={session["target_language"]}'
-        f'&with_watch_monetization_types=flatrate|free|ads|rent|buy'
-    )
+# TMDB API
+TMDB_APIKEY = os.environ.get('TMDB_APIKEY')
+def discover_titles(type, page=1):
+    url = ( f'https://api.themoviedb.org/3/discover/{type}?'
+            f'api_key={TMDB_APIKEY}'
+            f'&page={page}'
+            f'&region={session["watch_region"].lower()}'
+            f'&with_original_language={session["target_language"]}' )
+    response = requests.get(url)
+    return json.loads(response.text)
 
+def get_title_details(type, id):
+    url = ( f'https://api.themoviedb.org/3/{type}/{id}?'
+            f'api_key={TMDB_APIKEY}'
+            f'&append_to_response=watch/providers' )
+    response = requests.get(url)
+    return json.loads(response.text)
+
+def get_watch_provider(link):
+    r = requests.get(link)
+    soup = BeautifulSoup(r.content, features="html.parser")
+    stream = soup.find("li", attrs={"class": "ott_filter_best_price"})
+
+    provider = stream.find('a')['title']
+    link = stream.find('a')['href']
+    img = stream.find('img')['src']
+
+    return {'provider':provider, 'link':link, 'img':img}
 
 @app.route("/")
 def home():
     session.clear()
 
-    # # GET COUNTRY CODE FROM IP
+    # # GET COUNTRY CODE FROM IP TO AUTOMATICALLY SET WATCH REGION
     # ip_response = requests.get('http://ip-api.com/json')
     # ip_region = json.loads(ip_response.text)['countryCode']
 
@@ -36,70 +56,90 @@ def home():
 
 @app.route('/browse', methods=['GET', 'POST'])
 def browse():
+    print(session)
+
+    # IF GET METHOD, CHECK IF SESSION EXISTS
+    if request.method == 'GET':
+        if not session:
+            flash('Select your target language')
+            return redirect('/')
     
+    # IF POST POST, SET SESSION FROM FORM DATA
     if request.method == 'POST':
         session['watch_region'] = request.form.get('watch_region')
         session['target_language'] = request.form.get('target_language')
-
-    if request.method == 'GET':
-        if not session:
-            flash('Select your target')
-            return redirect('/')
     
-    response = requests.get(tmdb_discover('movie'))
-    movies = json.loads(response.text)['results']
+    # GET MOVIES FROM TMDB
+    print(discover_titles('movies'))
+    movies = discover_titles('movie')['results']
 
-    response = requests.get(tmdb_discover('tv'))
-    tvs = json.loads(response.text)['results']
+    # GET TV SHOWS FROM TMDB
+    tvs = discover_titles('tv')['results']
     
     return render_template('browse.html', movies=movies, tvs=tvs)
 
-@app.route('/movie')
+@app.route('/movie', methods=['GET', 'POST'])
 def movie():
-    return render_template('movie.html')
+    # IF GET METHOD, CHECK IF SESSION EXISTS
+    if request.method == 'GET':
+        if not session:
+            flash('Select your target language')
+            return redirect('/')
+    
+    # IF POST METHOD, RETURN MORE MOVIES
+    if request.method == 'POST':
+        page_number = request.form.get('movie-pageNo')
+        movies = discover_titles('movie', page_number)['results']
+        return movies
 
-@app.route('/tv')
+    response = discover_titles('movie')
+    total_pages = response['total_pages']
+    movies = response['results']
+    return render_template('movie.html', movies=movies, total_pages=total_pages)
+
+@app.route('/tv', methods=['GET', 'POST'])
 def tv():
-    return render_template('tv.html')
+    # IF GET METHOD, CHECK IF SESSION EXISTS
+    if request.method == 'GET':
+        if not session:
+            flash('Select your target language')
+            return redirect('/')
+    
+    # IF POST METHODS, RETURN MORE TV SHOWS
+    if request.method == 'POST':
+        page_number = request.form.get('tv-pageNo')
+        tvs = discover_titles('tv', page_number)['results']
+        return tvs
+
+    response = discover_titles('tv')
+    total_pages = response['total_pages']
+    tvs = response['results']
+    return render_template('tv.html', tvs=tvs, total_pages=total_pages)
 
 @app.route('/movie-details')
 def movie_details():
+
     movie_id = request.args.get('id')
-    url = f'https://api.themoviedb.org/3/movie/{movie_id}?api_key={TMBD_APIKEY}&append_to_response=watch/providers'
-    response = requests.get(url)
-    movie = json.loads(response.text)
+    movie = get_title_details('movie', movie_id)
 
     if session['watch_region'] in movie['watch/providers']['results']:
-        watch_providers_link = movie['watch/providers']['results'][session['watch_region']]['link']
-        
-        r = requests.get(watch_providers_link)
-        soup = BeautifulSoup(r.content, features="html.parser")
-        stream = soup.find("li", attrs={"class": "ott_filter_best_price"})
-        stream_service = stream.find('a')['title']
-        stream_link = stream.find('a')['href']
-        stream_imgsrc = stream.find('img')['src']
-
-        return render_template('movie-details.html', movie=movie, stream_service=stream_service, stream_link=stream_link, stream_imgsrc=stream_imgsrc)
+        link = movie['watch/providers']['results'][session['watch_region']]['link']
+        stream = get_watch_provider(link)
+        return render_template('movie-details.html', movie=movie, stream=stream)
 
     return render_template('movie-details.html', movie=movie)
 
 @app.route('/tv-details')
 def tv_details():
+    
     tv_id = request.args.get('id')
-    url = f'https://api.themoviedb.org/3/tv/{tv_id}?api_key={TMBD_APIKEY}&append_to_response=watch/providers'
-    response = requests.get(url)
-    tv = json.loads(response.text)
+    tv = get_title_details('tv', tv_id)
 
     if session['watch_region'] in tv['watch/providers']['results']:
-        watch_providers_link = tv['watch/providers']['results'][session['watch_region']]['link']
-        
-        r = requests.get(watch_providers_link)
-        soup = BeautifulSoup(r.content, features="html.parser")
-        stream = soup.find("li", attrs={"class": "ott_filter_best_price"})
-        stream_service = stream.find('a')['title']
-        stream_link = stream.find('a')['href']
-        stream_imgsrc = stream.find('img')['src']
+        link = tv['watch/providers']['results'][session['watch_region']]['link']
+        stream = get_watch_provider(link)
 
-        return render_template('tv-details.html', tv=tv, stream_service=stream_service, stream_link=stream_link, stream_imgsrc=stream_imgsrc)
+        return render_template('tv-details.html', tv=tv, stream=stream)
         
     return render_template('tv-details.html', tv=tv)
+

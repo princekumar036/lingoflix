@@ -1,38 +1,32 @@
 
 // MOVIES
-currentPage = 1
-totalPages = 1
+let movie_pageNo_el = document.getElementById('movie-pageNo')
+let movie_pageNo = parseInt(movie_pageNo_el.value)
+let movie_form = document.getElementById('movie-form')
 
-function addMovies(currentPage) {
-    url_movie = `https://api.themoviedb.org/3/discover/movie?` + 
-            `api_key=${'daa7c37e8875b873c494c4070f234516'}` +
-            `&page=${currentPage}` +
-            `&region=${session['watch_region']}` + 
-            `&with_original_language=${session['target_language']}` + 
-            `&with_watch_monetization_types=flatrate|free|ads|rent|buy`
+movie_form.addEventListener('submit', function(e) {
+    e.preventDefault()
 
-    fetch(url_movie)
+    movie_pageNo += 1
+    if (movie_pageNo === total_pages) {
+        movie_form.classList.add('hidden')
+        return
+    }
+    movie_pageNo_el.setAttribute('value', movie_pageNo)
+    const formData = new FormData(movie_form)
+
+    fetch('/movie', {
+        method: 'POST',
+        body: formData,
+    })
     .then((response) => response.json())
     .then((data) => {
-        totalPages = data['total_pages']
-        data.results.forEach(movie => {
+        data.forEach(movie => {
             newMovie = `<a href="/movie-details?id=${movie['id']}" class="hover:scale-105 ease-in-out duration-300">
-                            <img class="rounded-t h-72 w-full object-cover" src="https://image.tmdb.org/t/p/w500/${movie['poster_path']}" alt="${movie['title']}">
+                            <img class="rounded-t h-72 w-full object-cover" src="https://image.tmdb.org/t/p/w185${movie['poster_path']}" alt="${movie['title']}">
                             <p>${movie['title']} <span class="text-sm opacity-80">(${movie['release_date'].split('-')[0]})</span></p>
                         </a>`
-            document.getElementById(`section-movie`).innerHTML += newMovie
+            document.getElementById('movie-section').innerHTML += newMovie
         })
     })
-}
-
-document.getElementById('more-movie').addEventListener('click', () => {
-    currentPage += 1
-    if (currentPage < totalPages) {
-        addMovies(currentPage)
-    }
-    if (currentPage === totalPages) {
-        document.getElementById('more-movie').classList.add('hidden')
-    }
 })
-
-addMovies(1)
