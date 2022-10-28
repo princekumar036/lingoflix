@@ -31,7 +31,7 @@
             {% for genre in tv['genres'] %}
             <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ genre['name'] }}</span>
             {% endfor %}
-            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ tv['runtime'] }} min</span>
+            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full font-bold text-sm">{{ tv['episode_run_time'][0] }} min</span>
         </div>
         <div>
             <!-- <a href="https://www.imdb.com/title/{{ tv['imdb_id'] }}">
